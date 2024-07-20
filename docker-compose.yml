@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:13
+    container_name: db
+    environment:
+      POSTGRES_DB: django_web
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - "5432:5432"
+    networks:
+      - mynetwork
+
+  backend :
+    build:
+      context: ./backend
+    container_name: backend
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres://admin:12345@db:5432/django_web
+    networks:
+      - mynetwork
+
+  frontend:
+    build:
+      context: ./frontend/my-react-app
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - mynetwork
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  pgadmin_data:
