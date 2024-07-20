@@ -16,7 +16,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .utils.functions import save_to_postgres, generate_summary
+from .utils.functions import save_to_postgres, generate_summary, data_viz_overview
 
 import logging
 
@@ -41,14 +41,23 @@ def upload_file(request):
         # Extraer las primeras filas.
         head_region_1 = df_region_1.head()
 
-        # Generar un summary
+        # Generar tablas con resumen general y por columna
         general_summary_json, column_summary_json = generate_summary(df_region_1)
 
+        # Generar información para el histograma y boxplot
+        bin_counts_df_json = data_viz_overview(df_region_1)
+        logging.info(bin_counts_df_json)
         # Enviar el dataframe a la base de datos Postgres
-        logging.info('Enviando data a postgre....')
         save_to_postgres(df_region_1, 'region_1')
+
         # Aquí podrías hacer algo con los datos
-        return Response({'message': 'File uploaded successfully.', 'data': head_region_1.to_dict(), 'general_summary': general_summary_json, 'column_summary': column_summary_json}, status=status.HTTP_200_OK)
+        return Response({'message': 'File uploaded successfully.', 
+                        'data': head_region_1.to_dict(), 
+                        'general_summary': general_summary_json, 
+                        'histogram_data': bin_counts_df_json,
+                        #'histogram_values': histogram_values,
+                        'column_summary': column_summary_json}, 
+                        status=status.HTTP_200_OK)
         # return Response({
         #     'message': 'File uploaded successfully.',
         #     'data': head_region_1.to_dict(),

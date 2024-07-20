@@ -1,9 +1,7 @@
 # Importaciones para la gestion de credenciales
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 import logging
-
 import pandas as pd
 
 # Configura el logging
@@ -83,8 +81,23 @@ def generate_summary(df):
             'Max': col_desc.get('max', 'N/A')
         })
 
-    # Convertir los DataFrames a diccionarios
-    logging.info(f'Resumen general: {general_summary_json}')
-    logging.info(f'Resumen por columnas: {column_summary_json}')
-    
     return general_summary_json , column_summary_json
+
+
+def data_viz_overview(df):
+    df_viz = df.copy()
+    
+    # Asignar los datos a los bins
+    df_viz['product_bins'] = pd.cut(df_viz['product'], bins=10, retbins=False)
+    
+    # Contar la cantidad de valores en cada bin
+    bin_counts = df_viz['product_bins'].value_counts(sort=False, normalize=False)
+    
+    # Convertir los resultados en un DataFrame
+    bin_counts_df = bin_counts.reset_index()
+    bin_counts_df.columns = ['Bin', 'Count']
+    
+    # Convertir a formato JSON
+    bin_counts_json = bin_counts_df.to_json(orient='records')  # 'records' para lista de diccionarios
+    
+    return bin_counts_json
