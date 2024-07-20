@@ -16,6 +16,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
+from .utils.functions import save_to_postgres, generate_summary
+
+import logging
+
+# Configura el logging
+logging.basicConfig(level=logging.INFO)
+
 @api_view(['POST'])
 def upload_file(request):
     parser_classes = (MultiPartParser, FormParser)
@@ -29,14 +36,29 @@ def upload_file(request):
     # Ejemplo de procesamiento (solo como referencia):
     try:
         # Procesa el archivo CSV
-        import pandas as pd
-        data = pd.read_csv(file)
+        df_region_1 = pd.read_csv(file)
         
-        data_head = data.head()
+        # Extraer las primeras filas.
+        head_region_1 = df_region_1.head()
+
+        # Generar un summary
+        general_summary_json, column_summary_json = generate_summary(df_region_1)
+
+        # Enviar el dataframe a la base de datos Postgres
+        logging.info('Enviando data a postgre....')
+        save_to_postgres(df_region_1, 'region_1')
         # Aquí podrías hacer algo con los datos
-        return Response({'message': 'File uploaded successfully.', 'data': data_head.to_dict()}, status=status.HTTP_200_OK)
+        return Response({'message': 'File uploaded successfully.', 'data': head_region_1.to_dict(), 'general_summary': general_summary_json, 'column_summary': column_summary_json}, status=status.HTTP_200_OK)
+        # return Response({
+        #     'message': 'File uploaded successfully.',
+        #     'data': head_region_1.to_dict(),
+        #     'general_summary': general_summary_dict,
+        #     'column_summary': column_summary_dict
+        # }, status=status.HTTP_200_OK)
+
     except Exception as e:
         return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
 class DatasetViewSet(viewsets.ModelViewSet):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
