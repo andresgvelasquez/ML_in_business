@@ -37,7 +37,10 @@ def upload_file(request):
     try:
         # Procesa el archivo CSV
         df_region_1 = pd.read_csv(file)
-        
+
+        # Enviar el dataframe a la base de datos Postgres
+        save_to_postgres(df_region_1, 'region_1')
+
         # Extraer las primeras filas.
         head_region_1 = df_region_1.head()
 
@@ -48,17 +51,16 @@ def upload_file(request):
         bin_counts_df_json, boxplot_data = data_viz_overview(df_region_1)
 
         # Generar la tabla de correlacion
+        heatmap_data_json = df_region_1.corr().to_json()
 
-        # Enviar el dataframe a la base de datos Postgres
-        save_to_postgres(df_region_1, 'region_1')
-        logging.info(boxplot_data)
+        logging.info(heatmap_data_json)
         # Aquí podrías hacer algo con los datos
         return Response({'message': 'File uploaded successfully.', 
                         'data': head_region_1.to_dict(), 
                         'general_summary': general_summary_json, 
                         'histogram_data': bin_counts_df_json,
                         'boxplot_data': boxplot_data,
-                        #'heatmap_data': heatmap_data,
+                        'heatmap_data': heatmap_data_json,
                         'column_summary': column_summary_json}, 
                         status=status.HTTP_200_OK)
         # return Response({
