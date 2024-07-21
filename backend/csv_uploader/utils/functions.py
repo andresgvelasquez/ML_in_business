@@ -100,4 +100,26 @@ def data_viz_overview(df):
     # Convertir a formato JSON
     bin_counts_json = bin_counts_df.to_json(orient='records')  # 'records' para lista de diccionarios
     
-    return bin_counts_json
+    # Calcular los datos para realizar un boxplot
+    boxplot_data = {}
+
+    Q1 = df['product'].quantile(0.25)
+    Q3 = df['product'].quantile(0.75)
+    IQR = Q3 - Q1
+    min_val = df['product'].min()
+    max_val = df['product'].max()
+    median = df['product'].median()
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    outliers = df[(df['product'] < lower_bound) | (df['product'] > upper_bound)]['product'].tolist()
+
+    boxplot_data['product'] = {
+        'min': min_val,
+        'Q1': Q1,
+        'median': median,
+        'Q3': Q3,
+        'max': max_val,
+        'outliers': outliers
+    }
+
+    return bin_counts_json, boxplot_data

@@ -45,17 +45,20 @@ def upload_file(request):
         general_summary_json, column_summary_json = generate_summary(df_region_1)
 
         # Generar información para el histograma y boxplot
-        bin_counts_df_json = data_viz_overview(df_region_1)
-        logging.info(bin_counts_df_json)
+        bin_counts_df_json, boxplot_data = data_viz_overview(df_region_1)
+
+        # Generar la tabla de correlacion
+
         # Enviar el dataframe a la base de datos Postgres
         save_to_postgres(df_region_1, 'region_1')
-
+        logging.info(boxplot_data)
         # Aquí podrías hacer algo con los datos
         return Response({'message': 'File uploaded successfully.', 
                         'data': head_region_1.to_dict(), 
                         'general_summary': general_summary_json, 
                         'histogram_data': bin_counts_df_json,
-                        #'histogram_values': histogram_values,
+                        'boxplot_data': boxplot_data,
+                        #'heatmap_data': heatmap_data,
                         'column_summary': column_summary_json}, 
                         status=status.HTTP_200_OK)
         # return Response({
