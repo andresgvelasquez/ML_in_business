@@ -11,7 +11,7 @@ services:
     networks:
       - mynetwork
 
-  backend :
+  backend:
     build:
       context: ./backend
     container_name: backend
@@ -30,6 +30,10 @@ services:
     container_name: frontend
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend/my-react-app:/app
+    environment:
+      - NODE_ENV=development
     networks:
       - mynetwork
 
