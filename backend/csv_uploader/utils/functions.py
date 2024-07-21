@@ -4,6 +4,8 @@ from sqlalchemy.orm import sessionmaker
 import logging
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+import numpy as np
 
 # Configura el logging
 logging.basicConfig(level=logging.INFO)
@@ -145,3 +147,91 @@ def extractFeatTarget(data, not_features_cols, target_col):
     features = data.drop(not_features_cols, axis=1)                            
     target = data[target_col]                                                  
     return features, target
+
+def train_valid_split_scaled(data, features_cols, target_col, test_size, head=False):
+    '''
+    Toma un dataframe, las columnas de características y la columna objetivo. Lo divide
+    en 2 conjuntos de entrenamiento y 2 conjuntos de validación (características y objetivo). 
+    La división depende del test_size (valor entre 0 - 1) y se aplica al conjunto de validación.
+    '''
+    features, target = extractFeatTarget(data, features_cols, target_col)
+    features_train, features_valid, target_train, target_valid = train_test_split(features, 
+                                                                                  target, 
+                                                                                  test_size=test_size, 
+                                                                                  random_state=54321)
+    features_train_scaled = featureScaler(features_train)
+    features_valid_scaled = featureScaler(features_valid)
+    if head:
+        logging.info(features_valid_scaled.head(3))
+    return features_train_scaled, target_train, features_valid_scaled, target_valid
+
+def ganancia_predict(predicts, target):
+    '''
+    A apartir de las predicciones. Se toman los mejores 200 pozos y se obtiene el volumen
+    original [miles de barriles] de esos pozos para calcular las ganancias.
+    Las ganancias se calculan de la siguiente forma:
+    volumen total x ingreso por unidad - presupuesto
+    '''
+    # Se inicializan las variables
+    ingreso_por_unidad = 4500 # USD
+    presupuesto = 100000000 # millones de dolares
+
+    # Ordernar las predicciones de forma descendente y tomar las 200 mejores
+    best_predicts = pd.Series(predicts).sort_values(ascending=False).head(200)
+    
+    # Resetear el index del objetivo de validacion
+    target = target.reset_index(drop=True)
+    
+    # Obtener el volumen original de los pozos
+    best_target = target[best_predicts.index]
+    
+    # Calcular la ganancia
+    ganancia = best_target.sum() * ingreso_por_unidad - presupuesto
+    
+    return ganancia
+
+def ganancia_predict(predicts, target):
+    '''
+    A apartir de las predicciones. Se toman los mejores 200 pozos y se obtiene el volumen
+    original [miles de barriles] de esos pozos para calcular las ganancias.
+    Las ganancias se calculan de la siguiente forma:
+    volumen total x ingreso por unidad - presupuesto
+    '''
+     # Se inicializan las variables
+    ingreso_por_unidad = 4500 # USD
+    presupuesto = 100000000 # millones de dolares
+
+    # Ordernar las predicciones de forma descendente y tomar las 200 mejores
+    best_predicts = pd.Series(predicts).sort_values(ascending=False).head(200)
+    
+    # Resetear el index del objetivo de validacion
+    target = target.reset_index(drop=True)
+    
+    # Obtener el volumen original de los pozos
+    best_target = target[best_predicts.index]
+    
+    # Calcular la ganancia
+    ganancia = best_target.sum() * ingreso_por_unidad - presupuesto
+    
+    return ganancia
+
+def bootstrapping_ganancia(predicts, valid, n_muestras=1000):
+    '''
+    Se toman 1000 muestras con 500 pozos cada una. Se evalua la ganancia para
+    el volumen original de los mejores 200 pozos. 
+    '''
+    # Crear una instancia para números aleatorios
+    state = np.random.RandomState(54321)
+    
+    # Convertir a serie por comodidad
+    predicts = pd.Series(predicts)
+    
+    # Bootstraping para 1000  muestras
+    ganancias_muestras = []     # Guardar la ganancia calculada por muestra real
+    for _ in range(n_muestras):
+        # Tomar las muestras para las predicciones y el objetivo para n pozos
+        predicts_subsample = predicts.sample(n=500, replace=True, random_state=state)
+        # Calcular la ganancia
+        ganancias_muestras.append(ganancia_predict(predicts_subsample, valid))
+
+    return pd.Series(ganancias_muestras)
