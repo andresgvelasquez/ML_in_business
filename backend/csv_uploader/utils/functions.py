@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import logging
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 # Configura el logging
 logging.basicConfig(level=logging.INFO)
@@ -123,3 +124,24 @@ def data_viz_overview(df):
     }
 
     return bin_counts_json, boxplot_data
+
+def featureScaler(features):
+    ''' 
+    Convierte un dataframe con características númericas
+    en un dataframe estandarizado.
+    in: dataframe númerico
+    out: dataframe estándar
+    '''
+    scaler = StandardScaler()                                                   
+    features_scaled = scaler.fit_transform(features)                            
+    features_scaled = pd.DataFrame(features_scaled, columns=features.columns)   
+    return features_scaled
+
+def extractFeatTarget(data, not_features_cols, target_col):
+    ''' 
+    Divide el datframe en un dataframe con características y otro 
+    con el objetivo.
+    '''
+    features = data.drop(not_features_cols, axis=1)                            
+    target = data[target_col]                                                  
+    return features, target
