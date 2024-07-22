@@ -16,8 +16,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .utils.functions import save_to_postgres, generate_summary, data_viz_overview, train_valid_split_scaled, LinearReg_predict, scatter_predicts_target
-
+import numpy as np
+from .utils.functions import save_to_postgres, generate_summary, data_viz_overview, train_valid_split_scaled, LinearReg_predict, scatter_predicts_target, ganancia_predict, bootstrapping_ganancia
+import json
 import logging
 
 # Configura el logging
@@ -71,8 +72,33 @@ def upload_file(request):
         
         # Calcular los datos para el grafico de dispersion reales vs prediciones
         predictions_scatter_region_1 = scatter_predicts_target(predicts_region_1, target_valid_region_1)
-        logging.info(f'PREDICCIONES: {predictions_scatter_region_1}')
-        
+
+        # Calculo de ganancias=============================================
+        # Calcular las ganancias si tuvieramos los mejores 200 pozos
+        best_profit_region_1 = ganancia_predict(predicts_region_1, target_valid_region_1)
+
+        # Obtener las ganancias de 1000 muestras
+        profit_1000_samples_region_1 = bootstrapping_ganancia(predicts_region_1, target_valid_region_1)
+
+        # Intervalo de confianza al 95% 
+        confidence_interval_region_1 = np.percentile(profit_1000_samples_region_1, [2.5, 97.5])
+
+        # Evaluación de riesgo
+        p_risk = (profit_1000_samples_region_1 < 0).sum() / len(profit_1000_samples_region_1) * 100
+
+        # Construir el json de las ganancias
+        profit_table = {
+            "average_mean": float(profit_1000_samples_region_1.mean()),
+            "intervalo_confianza": {
+                "inferior": float(confidence_interval_region_1[0]),
+                "superior": float(confidence_interval_region_1[1])
+            },
+            "porcentaje_perdidas": str(f'{p_risk}%')
+        }
+
+        # Convertir el diccionario de ganancias a JSON
+        profit_table_json = json.dumps(profit_table, indent=4)
+
         # Carga de datos====================================================
 
         # Aquí podrías hacer algo con los datos
@@ -84,7 +110,8 @@ def upload_file(request):
                         'heatmap_data': heatmap_data_json,
                         'column_summary': column_summary_json,
                         'volumen_predictions': volumen_predictions,
-                        'predictions_scatter': predictions_scatter_region_1},
+                        'predictions_scatter': predictions_scatter_region_1,
+                        'profit_table': profit_table_json},
                         status=status.HTTP_200_OK
         )
 

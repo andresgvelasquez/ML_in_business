@@ -204,6 +204,7 @@ def LinearReg_predict(features_train, target_train, features_valid, target_valid
     # Construir el archivo con los volumenes promedio y el RMSE
     volumen_predictions = {
         "region": "Region 1",
+        "average_volumen_required": 111.11,
         "predicted_average_volume": predict_mean,
         "real_average_volume": real_mean,
         "RMSE": rmse
@@ -252,31 +253,6 @@ def ganancia_predict(predicts, target):
     volumen total x ingreso por unidad - presupuesto
     '''
     # Se inicializan las variables
-    ingreso_por_unidad = 4500 # USD
-    presupuesto = 100000000 # millones de dolares
-
-    # Ordernar las predicciones de forma descendente y tomar las 200 mejores
-    best_predicts = pd.Series(predicts).sort_values(ascending=False).head(200)
-    
-    # Resetear el index del objetivo de validacion
-    target = target.reset_index(drop=True)
-    
-    # Obtener el volumen original de los pozos
-    best_target = target[best_predicts.index]
-    
-    # Calcular la ganancia
-    ganancia = best_target.sum() * ingreso_por_unidad - presupuesto
-    
-    return ganancia
-
-def ganancia_predict(predicts, target):
-    '''
-    A apartir de las predicciones. Se toman los mejores 200 pozos y se obtiene el volumen
-    original [miles de barriles] de esos pozos para calcular las ganancias.
-    Las ganancias se calculan de la siguiente forma:
-    volumen total x ingreso por unidad - presupuesto
-    '''
-     # Se inicializan las variables
     ingreso_por_unidad = 4500 # USD
     presupuesto = 100000000 # millones de dolares
 
