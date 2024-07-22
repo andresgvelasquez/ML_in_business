@@ -16,7 +16,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .utils.functions import save_to_postgres, generate_summary, data_viz_overview, train_valid_split_scaled, LinearReg_predict
+from .utils.functions import save_to_postgres, generate_summary, data_viz_overview, train_valid_split_scaled, LinearReg_predict, scatter_predicts_target
 
 import logging
 
@@ -69,6 +69,10 @@ def upload_file(request):
             target_valid_region_1
         )
         
+        # Calcular los datos para el grafico de dispersion reales vs prediciones
+        predictions_scatter_region_1 = scatter_predicts_target(predicts_region_1, target_valid_region_1)
+        logging.info(f'PREDICCIONES: {predictions_scatter_region_1}')
+        
         # Carga de datos====================================================
 
         # Aquí podrías hacer algo con los datos
@@ -79,7 +83,8 @@ def upload_file(request):
                         'boxplot_data': boxplot_data,
                         'heatmap_data': heatmap_data_json,
                         'column_summary': column_summary_json,
-                        'volumen_predictions': volumen_predictions},
+                        'volumen_predictions': volumen_predictions,
+                        'predictions_scatter': predictions_scatter_region_1},
                         status=status.HTTP_200_OK
         )
 

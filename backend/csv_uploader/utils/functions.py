@@ -9,6 +9,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 import matplotlib as plt
 import numpy as np
+import json
 
 # Configura el logging
 logging.basicConfig(level=logging.INFO)
@@ -200,8 +201,6 @@ def LinearReg_predict(features_train, target_train, features_valid, target_valid
     # Calcular la raíz del error cuadrático medio
     rmse = mean_squared_error(predicts, target_valid) ** 0.5
 
-    logging.info(f'RMSE: {rmse}')
-
     # Construir el archivo con los volumenes promedio y el RMSE
     volumen_predictions = {
         "region": "Region 1",
@@ -211,23 +210,39 @@ def LinearReg_predict(features_train, target_train, features_valid, target_valid
     }
     return predicts, grid_search.best_estimator_, volumen_predictions
 
-def scatter_predcts_target(predicts, target):
+def scatter_predicts_target(predicts, target):
     ''' 
     Función para graficar las predicciones en una gráfica de disperción.
     Toma las predicciones y el objetivo.
     '''
-    plt.figure(figsize=(8, 6))
-    plt.scatter(target, predicts, alpha=0.5)  # Gráfico de dispersión
-    plt.xlabel('Valores reales')
-    plt.ylabel('Predicciones')
-    plt.title('Gráfico de dispersión: Valores reales vs Predicciones')
-    # Línea diagonal (predicción perfecta)
-    min_value = min(min(target), min(predicts))
-    max_value = max(max(target), max(predicts))
-    plt.plot([min_value, max_value], [min_value, max_value], 'k--')  # Línea diagonal
-    
-    plt.grid(True)
-    plt.show()
+    # Combina las series en un DataFrame
+    df = pd.DataFrame({'x': predicts, 'y': target})
+
+    # Tomar solo 500 datos al azar
+    df = df.sample(500)
+
+    # Convierte el DataFrame a una lista de diccionarios
+    data_list = df.to_dict(orient='records')
+
+    # Convierte el DataFrame a una lista de diccionarios
+    data_list = df.to_dict(orient='records')
+
+    # Estructura el JSON en el formato requerido por Chart.js
+    chart_data = {
+        "datasets": [
+            {
+                "label": "Scatterplot Real vs Prediction [Volumen]",
+                "data": data_list,
+                "backgroundColor": "rgba(75, 192, 192, 0.2)",
+                "borderColor": "rgba(75, 192, 192, 1)",
+                "borderWidth": 1
+            }
+        ]
+    }
+
+    # Convierte el diccionario a una cadena JSON
+    json_data = json.dumps(chart_data, indent=4)
+    return json_data
 
 def ganancia_predict(predicts, target):
     '''
