@@ -16,7 +16,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .utils.functions import save_to_postgres, generate_summary, data_viz_overview
+from .utils.functions import save_to_postgres, generate_summary, data_viz_overview, train_valid_split_scaled, LinearReg_predict
 
 import logging
 
@@ -53,7 +53,33 @@ def upload_file(request):
         # Generar la tabla de correlacion
         heatmap_data_json = df_region_1.corr().to_json()
 
-        logging.info(heatmap_data_json)
+        # Preprocesamiento de datos=========================================
+
+        # Didivir el dataframe en train y valid (para las características y objetivo)
+        # y escalar las características
+        features_train_scaled_region_1, target_train_region_1, features_valid_scaled_region_1, target_valid_region_1 = train_valid_split_scaled(df_region_1,
+                                                                                                                                                'product',
+                                                                                                                                                0.25) 
+
+        # Predicciones para la región 0
+        predicts_region_1, model_region_1, rmse_region_1, predict_mean_region_1, real_mean_region_1 = LinearReg_predict(
+            features_train_scaled_region_1, 
+            target_train_region_1, 
+            features_valid_scaled_region_1, 
+            target_valid_region_1
+        )
+        
+        # Construir el archivo con los volumenes promedio y el RMSE
+        volumen_predictions = {
+            "region": "Region 1",
+            "predicted_average_volume": predict_mean_region_1,
+            "real_average_volume": real_mean_region_1,
+            "RMSE": rmse_region_1
+        }
+
+        
+        # Carga de datos====================================================
+
         # Aquí podrías hacer algo con los datos
         return Response({'message': 'File uploaded successfully.', 
                         'data': head_region_1.to_dict(), 
@@ -61,14 +87,11 @@ def upload_file(request):
                         'histogram_data': bin_counts_df_json,
                         'boxplot_data': boxplot_data,
                         'heatmap_data': heatmap_data_json,
-                        'column_summary': column_summary_json}, 
-                        status=status.HTTP_200_OK)
-        # return Response({
-        #     'message': 'File uploaded successfully.',
-        #     'data': head_region_1.to_dict(),
-        #     'general_summary': general_summary_dict,
-        #     'column_summary': column_summary_dict
-        # }, status=status.HTTP_200_OK)
+                        'column_summary': column_summary_json,
+                        'volumen_predictions': volumen_predictions},
+                        status=status.HTTP_200_OK
+        )
+
 
     except Exception as e:
         return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

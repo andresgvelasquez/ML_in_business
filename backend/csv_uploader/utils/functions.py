@@ -4,7 +4,10 @@ from sqlalchemy.orm import sessionmaker
 import logging
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+import matplotlib as plt
 import numpy as np
 
 # Configura el logging
@@ -139,22 +142,22 @@ def featureScaler(features):
     features_scaled = pd.DataFrame(features_scaled, columns=features.columns)   
     return features_scaled
 
-def extractFeatTarget(data, not_features_cols, target_col):
+def extractFeatTarget(data, target_col):
     ''' 
     Divide el datframe en un dataframe con características y otro 
     con el objetivo.
     '''
-    features = data.drop(not_features_cols, axis=1)                            
-    target = data[target_col]                                                  
+    features = data.drop(target_col, axis=1)                            
+    target = data[target_col]                               
     return features, target
 
-def train_valid_split_scaled(data, features_cols, target_col, test_size, head=False):
+def train_valid_split_scaled(data, target_col, test_size, head=True):
     '''
     Toma un dataframe, las columnas de características y la columna objetivo. Lo divide
     en 2 conjuntos de entrenamiento y 2 conjuntos de validación (características y objetivo). 
     La división depende del test_size (valor entre 0 - 1) y se aplica al conjunto de validación.
     '''
-    features, target = extractFeatTarget(data, features_cols, target_col)
+    features, target = extractFeatTarget(data, target_col)
     features_train, features_valid, target_train, target_valid = train_test_split(features, 
                                                                                   target, 
                                                                                   test_size=test_size, 
@@ -162,8 +165,61 @@ def train_valid_split_scaled(data, features_cols, target_col, test_size, head=Fa
     features_train_scaled = featureScaler(features_train)
     features_valid_scaled = featureScaler(features_valid)
     if head:
-        logging.info(features_valid_scaled.head(3))
+       logging.info(features_valid_scaled.head(3))
     return features_train_scaled, target_train, features_valid_scaled, target_valid
+
+def LinearReg_predict(features_train, target_train, features_valid, target_valid):
+    ''' 
+    Usando un modelo de regresión lineal. Toma las características y objetivos de los
+    distintos conjuntos de entrenamiento y validación y devuelve las predicciones para
+    el conjuto de validación. 
+    '''
+    # Inicializar la instancia de regresión lineal
+    model = LinearRegression(n_jobs=-1)
+
+    # Definir hiperparámetros a mejorar
+    param_grid = {
+        'fit_intercept': [True, False],
+    }
+
+    # cv=3 para un conjunto de validación del 1/3 de los datos de entrenamiento
+    grid_search  = GridSearchCV(model, param_grid=param_grid, cv=3, scoring='neg_root_mean_squared_error')
+    # Entrenar el modelo con el conjunto de entrenamiento
+    grid_search.fit(features_train, target_train)
+    # Predicciones para el conjunto de validación
+    predicts = grid_search.predict(features_valid)
+    
+    # Calculo del volumen promedio para las predicciones y el real
+    predict_mean = predicts.mean()
+    real_mean = target_valid.mean()
+    # Imprimir las reservas previstas del conjunto de validación
+    print(f'Volumen promedio de las reservas previstas: {predict_mean}')
+    # Imprimir las reservas promedio del conjunto de validación
+    print(f'Volumen promedio de las reservas reales: {real_mean}')
+    
+    # Calcular la raíz del error cuadrático medio
+    rmse = mean_squared_error(predicts, target_valid) ** 0.5
+
+    logging.info(f'RMSE: {rmse}')
+    return predicts, grid_search.best_estimator_, rmse, predict_mean, real_mean
+
+def scatter_predcts_target(predicts, target):
+    ''' 
+    Función para graficar las predicciones en una gráfica de disperción.
+    Toma las predicciones y el objetivo.
+    '''
+    plt.figure(figsize=(8, 6))
+    plt.scatter(target, predicts, alpha=0.5)  # Gráfico de dispersión
+    plt.xlabel('Valores reales')
+    plt.ylabel('Predicciones')
+    plt.title('Gráfico de dispersión: Valores reales vs Predicciones')
+    # Línea diagonal (predicción perfecta)
+    min_value = min(min(target), min(predicts))
+    max_value = max(max(target), max(predicts))
+    plt.plot([min_value, max_value], [min_value, max_value], 'k--')  # Línea diagonal
+    
+    plt.grid(True)
+    plt.show()
 
 def ganancia_predict(predicts, target):
     '''
