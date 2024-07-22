@@ -160,3 +160,26 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+frontend/my-react-app/node_modules
+frontend/my-react-app/.pnp
+frontend/my-react-app.pnp.js
+
+# testing
+frontend/my-react-app/coverage
+
+# production
+frontend/my-react-app/build
+
+# misc
+frontend/my-react-app.DS_Store
+frontend/my-react-app.env.local
+frontend/my-react-app.env.development.local
+frontend/my-react-app.env.test.local
+frontend/my-react-app.env.production.local
+
+frontend/my-react-appnpm-debug.log*
+frontend/my-react-appyarn-debug.log*
+frontend/my-react-appyarn-error.log*
