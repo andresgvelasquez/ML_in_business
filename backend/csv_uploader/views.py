@@ -62,21 +62,12 @@ def upload_file(request):
                                                                                                                                                 0.25) 
 
         # Predicciones para la región 0
-        predicts_region_1, model_region_1, rmse_region_1, predict_mean_region_1, real_mean_region_1 = LinearReg_predict(
+        predicts_region_1, model_region_1, volumen_predictions = LinearReg_predict(
             features_train_scaled_region_1, 
             target_train_region_1, 
             features_valid_scaled_region_1, 
             target_valid_region_1
         )
-        
-        # Construir el archivo con los volumenes promedio y el RMSE
-        volumen_predictions = {
-            "region": "Region 1",
-            "predicted_average_volume": predict_mean_region_1,
-            "real_average_volume": real_mean_region_1,
-            "RMSE": rmse_region_1
-        }
-
         
         # Carga de datos====================================================
 

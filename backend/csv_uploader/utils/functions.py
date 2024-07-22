@@ -201,7 +201,15 @@ def LinearReg_predict(features_train, target_train, features_valid, target_valid
     rmse = mean_squared_error(predicts, target_valid) ** 0.5
 
     logging.info(f'RMSE: {rmse}')
-    return predicts, grid_search.best_estimator_, rmse, predict_mean, real_mean
+
+    # Construir el archivo con los volumenes promedio y el RMSE
+    volumen_predictions = {
+        "region": "Region 1",
+        "predicted_average_volume": predict_mean,
+        "real_average_volume": real_mean,
+        "RMSE": rmse
+    }
+    return predicts, grid_search.best_estimator_, volumen_predictions
 
 def scatter_predcts_target(predicts, target):
     ''' 
