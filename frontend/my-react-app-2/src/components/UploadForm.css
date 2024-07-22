@@ -1,0 +1,221 @@
+/* Estilo general para el formulario de carga */
+.upload-form {
+  padding: 20px;
+  text-align: center; /* Centra el contenido del formulario */
+}
+
+/* Estilo del banner */
+.banner {
+  display: flex;
+  width: 100%; /* Ajusta el ancho al 100% del contenedor */
+  height: 20vh; /* Ajustado para el tamaño deseado */
+  margin: 0 auto; /* Centrado horizontalmente */
+  border: 2px solid #000000; /* Borde negro */
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+/* Estilo para la parte izquierda del banner */
+.banner-left {
+  flex: 1;
+  background-color: #004d00; /* Verde oscuro para el título */
+  padding: 20px;
+  border-right: 2px solid #000000; /* Línea divisoria en negro */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centra verticalmente */
+}
+
+/* Estilo para el título del banner */
+.title {
+  font-size: 3em; /* Título más grande */
+  font-weight: bold;
+  color: #F5F5F5; /* Gris claro para el texto del título */
+  margin: 0;
+}
+
+/* Estilo para el subtítulo del banner */
+.subtitle {
+  font-size: 1.5em;
+  color: #F5F5F5; /* Gris claro para el texto del subtítulo */
+  margin: 0;
+}
+
+/* Estilo para la parte derecha del banner */
+.banner-right {
+  flex: 2; /* Ajustado para que la descripción ocupe más espacio que la parte del título */
+  background-color: #F9F9F9; /* Beige claro para la descripción */
+  padding: 20px;
+  color: #4B4B4B; /* Gris oscuro para el texto */
+  display: flex;
+  align-items: center; /* Centra verticalmente */
+  justify-content: center; /* Centra horizontalmente */
+  text-align: center; /* Centra el texto */
+}
+
+/* Estilo para el contenedor del formulario */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centra el contenido del formulario horizontalmente */
+  margin-top: 20px; /* Espacio entre el banner y el formulario */
+}
+
+/* Estilo para el input de archivo */
+.upload-form input[type="file"] {
+  margin-bottom: 10px; /* Espacio debajo del input */
+}
+
+/* Estilo para el botón */
+.upload-form button {
+  background-color: #2E8B57; /* Verde esmeralda */
+  color: #FFFFFF; /* Texto blanco */
+  border: none;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 10px;
+}
+
+/* Estilo para el contenedor de las tablas */
+.data-analysis-section {
+  margin-top: 20px;
+}
+
+/* Estilo para las tablas */
+.styled-table {
+  margin: 20px auto;
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #F5F5F5; /* Color de fondo gris claro */
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd; /* Línea divisoria gris clara */
+}
+
+.styled-table th {
+  background-color: #004d00; /* Verde oscuro para el encabezado */
+  color: #FFFFFF; /* Texto blanco */
+}
+
+/* Estilo para el contenedor de los gráficos */
+.charts-container {
+  display: flex;
+  flex-wrap: wrap; /* Permite que los gráficos se envuelvan si el espacio es insuficiente */
+  justify-content: center; /* Centra los gráficos horizontalmente */
+  width: 100%; /* Asegúrate de que ocupe todo el ancho disponible */
+  margin: 20px auto;
+  max-width: 1200px; /* Tamaño máximo para la pantalla */
+  box-sizing: border-box;
+}
+
+/* Estilo para cada gráfico */
+.chart {
+  flex: 1 1 45%; /* Ajusta el tamaño de los gráficos para que ocupen más espacio y se alineen mejor */
+  margin: 10px;
+  max-width: 45%; /* Permite que el gráfico se ajuste al contenedor */
+  height: auto; /* Ajusta la altura automáticamente para evitar gráficos alargados */
+  min-height: 400px; /* Fija una altura mínima para evitar gráficos demasiado pequeños */
+  overflow: hidden; /* Oculta el contenido que se desborda */
+  margin-bottom: 10px; /* Reduce el espacio entre el gráfico de heatmap y la siguiente sección */
+}
+
+.section-title {
+  font-size: 1.5em; /* Ajusta el tamaño de la fuente del título */
+  margin-bottom: 10px; /* Reduce el espacio debajo del título de la sección */
+  color: #004d00; /* Verde oscuro para el título de sección */
+}
+
+/* Estilo para las tablas dentro de la sección */
+.tables-container {
+  display: flex;
+  justify-content: space-between; /* Espacia las tablas horizontalmente */
+}
+
+.table-wrapper {
+  flex: 1;
+  margin: 0 10px;
+}
+
+/* Estilo para el contenedor del heatmap */
+.heatmap-container {
+  display: flex;
+  flex-direction: column; /* Alinea los elementos en una columna */
+  align-items: center; /* Centra horizontalmente */
+  width: 100%; /* Ajusta el ancho al 100% del contenedor */
+  height: auto; /* Ajusta la altura automáticamente si es necesario */
+  padding: 0px;
+  box-sizing: border-box;
+  overflow: auto; /* Permite el desplazamiento si el contenido es más grande */
+  margin-top: 0px; /* Espacio arriba del contenedor */
+  margin-bottom: 0px; /* Espacio abajo del contenedor (ajustado) */
+}
+
+/* Estilo para el gráfico heatmap */
+.heatmap-graph {
+  width: 100%; /* Ajusta el ancho del gráfico al 100% del contenedor */
+  height: auto; /* Ajusta la altura automáticamente */
+  max-width: 1200px; /* Ajusta el tamaño máximo del gráfico */
+  margin-bottom: 10px; /* Reduce el espacio debajo de cada gráfico */
+}
+
+
+/* Ajustes adicionales para el SVG del heatmap */
+.heatmap-container svg {
+  width: 100%; /* Asegúrate de que el SVG ocupe todo el ancho del contenedor */
+  height: auto; /* Ajusta la altura para mantener la relación de aspecto */
+  max-width: 100%; /* Asegura que el SVG no se expanda más allá de su contenedor */
+  object-fit: contain; /* Ajusta el contenido del SVG dentro del contenedor sin distorsión */
+}
+
+/* Estilo para los valores de correlación dentro del heatmap */
+.heatmap-text {
+  font-size: 12px; /* Ajusta el tamaño del texto según sea necesario */
+  text-anchor: middle; /* Centra horizontalmente el texto */
+  dominant-baseline: central; /* Centra verticalmente el texto */
+  fill: #000; /* Color del texto, ajusta según el fondo del heatmap */
+}
+
+/* Estilo para el contenedor del gráfico de barras */
+.bar-chart-wrapper {
+  width: 100%;
+  max-width: 100%; /* Asegura que no se expanda más allá de su contenedor */
+  height: 400px; /* Altura fija para evitar desbordamiento */
+  overflow: hidden; /* Oculta el contenido que se desborda */
+  margin-bottom: 10px; /* Reduce el espacio debajo de cada gráfico */
+}
+
+/* Ajuste adicional para el espaciado entre gráficos y secciones inferiores */
+.charts-container {
+  margin-bottom: 20px; /* Reduce el espacio debajo del contenedor de gráficos */
+}
+
+.div-chart-container {
+  width: 100%; /* Ajusta el ancho al 100% del contenedor padre */
+  max-width: 1000px; /* Establece un ancho máximo para evitar que se expanda demasiado */
+  margin: 0 auto; /* Centra horizontalmente */
+  padding: 10px; /* Agrega un poco de relleno */
+  box-sizing: border-box; /* Incluye el relleno en el cálculo del ancho */
+}
+
+/* Estilo para el contenedor del gráfico en sí */
+.div-chart {
+  width: 100%; /* Ajusta el ancho al 100% del contenedor padre */
+  height: 400px; /* Ajusta la altura del gráfico, cámbiala si es necesario */
+  max-height: 400px; /* Establece una altura máxima para evitar que el gráfico se expanda demasiado */
+  overflow: hidden; /* Oculta el contenido que se desborda */
+}
+
+.scatter-plot-container {
+  width: 100%;
+  height: 400px; /* Ajusta el tamaño según tus necesidades */
+  margin: 20px 0;
+}
